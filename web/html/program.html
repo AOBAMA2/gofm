@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module">
+        const $=selector=>document.querySelector(selector);
+        const $$=selector=>document.querySelectorAll(selector);
+
+        const $reloj=$("#reloj");
+        let horaActual;
+        let ultimo_voceo="";
+        const voceosHorarios=[
+            "09:00",
+            "12:00"
+        ];
+
+        function getHoraActual() {
+            const fecha = new Date();
+            let horas = fecha.getHours();
+            const minutos = fecha.getMinutes().toString().padStart(2, '0'); // Agrega cero si es necesario
+            const segundos = fecha.getSeconds().toString().padStart(2, '0'); // Agrega cero si es necesario
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+
+            //horas = horas % 12 || 12; // Convierte la hora al formato de 12 horas
+            return `${horas}:${minutos}:${segundos} ${ampm}`;
+        }
+        function voceoProgramado(){
+            const ahora=horaActual.substring(0,5);
+            if(voceosHorarios.includes(ahora) && ahora!=ultimo_voceo){
+                const audio = new Audio('m.mp3');
+                audio.play();
+                ultimo_voceo=ahora;
+            }
+        }
+
+        horaActual=getHoraActual();$reloj.innerHTML=horaActual;
+        setInterval(function(){horaActual=getHoraActual();$reloj.innerHTML=horaActual;},1000);
+        setInterval(function(){voceoProgramado()},19000);
+    </script>
+</head>
+<body>
+    <h1 id="reloj"></h1>
+</body>
+</html>

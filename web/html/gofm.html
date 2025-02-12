@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1"/>
+    <title>GO Server File Manager</title>
+    <link rel="shortcut icon" href="/img/icon.png" type="image/png"/>
+    <!-- Start CSS Imports -->
+        <!-- Importar CSS de forma optimizada -->
+        <link rel="preload" href="/css/gofm.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/all.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-regular.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-regular.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-solid.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-regular.css" as="style" onload="this.rel='stylesheet'">
+        <link rel="preload" href="/css/fa/css/sharp-solid.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <!-- Para navegadores con el js desactivado -->
+        <noscript>
+            <link rel="preload" href="/css/style.css"/>
+            <link rel="preload" href="/css/fa/css/all.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-light.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-regular.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-thin.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-light.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-regular.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-solid.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-thin.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-light.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-regular.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-solid.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-thin.css"/>
+        </noscript>
+    <!-- End CSS Imports -->
+    <script src="/js/api.js"></script>
+    <script>
+    if(location.hash.length<2){location.hash="#/";}
+    // Detectar cambios en el hash
+    window.addEventListener("hashchange", function(){
+        console.log("El hash cambió a:", location.hash);
+        Call_List();
+    });
+    document.addEventListener("contextmenu",function(event){event.preventDefault();});//DESACTIVA CLICK DERECHO
+    //console.log(decodeURIComponent(location.hash));
+    let list_files;
+    let old_list_files;
+    //console.log(location);
+    function Debug(mensaje){console.log("---------"+mensaje)}
+    async function Call_List(){
+        const formulario=new FormData();
+        formulario.append("ruta",decodeURIComponent(location.hash));
+        //console.log(decodeURIComponent(location.hash));
+        try{
+            const responseSend = await fetch("/data?r="+Math.random(),{method:"POST",body:formulario});
+            if(!responseSend.ok){
+                if(responseSend.status===401){
+                    location.replace("/login");
+                    return;
+                }
+                console.error("Falló al obtener lista de rutas. Estado:", responseSend.status);
+                return;
+            }
+            old_list_files=list_files;
+            list_files = await responseSend.json();
+            if(list_files.error){
+                location.href='#/';
+                console.log("No se encontró la ruta deseada, redireccionado a carpeta files");
+                return;
+            }
+            if(old_list_files && JSON.stringify(old_list_files) === JSON.stringify(list_files)){
+                console.log("Datos no actualizados");
+                return;
+            }
+            print_list_files();
+            print_list_url();
+            print_list_raiz();
+            console.log("actualizado!");
+        }catch(error){
+            console.error("Error en la solicitud:",error);
+        }
+    }
+    function print_list_files(){
+        let structure_html=``;
+        for(let i=0,long_list=list_files.dirs.length;i<long_list;i++){
+            if(list_files.dirs[i].IsDir){//CARPETAS
+                structure_html+=`
+                <label for="checkdir_${i}">
+                    <div class="GTA4" ondblclick="location.href='${location.hash+list_files.dirs[i].Name}/';" oncontextmenu="Dialog_contextmenu(event,${i})">
+                        <div class="GTA4s1"><input type="checkbox" id="checkdir_${i}" name="selected_dirs" value="${i}"/></div>
+                        <base class="GTA4s2 fa-sharp fa-solid fa-folder"/>
+                        <div class="GTA4s3">${list_files.dirs[i].Name}</div>
+                        <div class="GTA4s4">${list_files.dirs[i].Size}</div>
+                        <div class="GTA4s5">${list_files.dirs[i].Date}</div>
+                        <div class="GTA4s6">${list_files.dirs[i].Perm}</div>
+                    </div>
+                </label>`;
+            }else{//ARCHIVOS
+                structure_html+=`
+                <label for="checkdir_${i}">
+                    <div class="GTA4" ondblclick="if($View($$('#DP_File${i}'))){if($('#DP_File${i}').src==''){$('#DP_File${i}').addEventListener('load',function(){doom('${i}');});$('#DP_File${i}').src='/serverfile?r=${encodeURIComponent(list_files.ruta+list_files.dirs[i].Name)}';}}" oncontextmenu="Dialog_contextmenu(event,${i})">
+                        <div class="GTA4s1"><input type="checkbox" id="checkdir_${i}" name="selected_dirs" value="${i}"/></div>
+                        <base class="GTA4s2 fa-sharp fa-solid fa-file"/>
+                        <div class="GTA4s3">${list_files.dirs[i].Name}</div>
+                        <div class="GTA4s4">${bytes_to_text(list_files.dirs[i].Size)}</div>
+                        <div class="GTA4s5">${list_files.dirs[i].Date}</div>
+                        <div class="GTA4s6">${list_files.dirs[i].Perm}</div>
+                    </div>
+                    <div class="Window_File">
+                        <iframe id="DP_File${i}" style="display:none;resize:auto;"></iframe>
+                    </div>
+                </label>`;
+            }
+        }
+        $("#CONTENEDOR_READ_DIR").innerHTML=structure_html;
+    }
+    function print_list_url(){
+        let structure_html=`<strong ondblclick="location.href='#/';">files/</strong>`;
+        const spt_list_files=list_files.ruta.split("/");//El split genera un ultimo elemento vació
+        for(let i=1,s="",long_list=spt_list_files.length-1;i<long_list;i++){
+            s+=spt_list_files[i]+"/";
+            structure_html+=`<strong ondblclick="location.href='#/`+s+`';">`+spt_list_files[i]+`/</strong>`;
+        }
+        $("#H_Ruta").innerHTML=structure_html;
+        //actualiza la guía de rutas en la barra superior
+    }
+    function print_list_raiz(){
+        let structure_html=``;
+        for(let i=0,long_list=list_files.a_raiz.length;i<long_list;i++){
+            if(list_files.a_raiz[i].IsDir){
+                //para pintar solo carpetas
+                structure_html+=`<div class="GTA3" ondblclick="location.href='#/`+list_files.a_raiz[i].Name+`/';"><base class="GTA3s1 fa-solid fa-sharp fa-folder"/><div class="GTA3s2">`+list_files.a_raiz[i].Name+`</div><base class="GTA3s3 fa-sharp-duotone fa-solid fa-arrow-up-right-from-square" onclick="location.href='#/`+list_files.a_raiz[i].Name+`/';"/></div>`;
+            }else{
+                //para pintar solo archivos
+                structure_html+=`<div class="GTA3" ondblclick="location.href='#/';"><base class="GTA3s1 fa-sharp fa-solid fa-file"/><div class="GTA3s2">`+list_files.a_raiz[i].Name+`</div><base class="GTA3s3 fa-sharp-duotone fa-solid fa-arrow-up-right-from-square" onclick="location.href='#/';"/></div>`;
+            }
+        }
+        $("#A_R_Raiz").innerHTML=structure_html;
+        //pinta lista de los directorios de raiz
+    }
+    Call_List();
+    setInterval(function(){Call_List()},25000);
+    /*------------------------------------------------------*/
+    function doom(i){
+        try {
+            const iFrame=($("#DP_File"+i).contentWindow || $("#DP_File"+i).contentDocument);
+            //alert("entró");
+            iFrame.document.head.innerHTML="<meta charset='utf-8'/><meta http-equiv='X-UA-Compatible' content='IE=edge'/>"+
+                                            "<meta name='viewport' content='initial-scale=1, maximum-scale=1'/>"+
+                                            "<link rel='stylesheet' type='text/css' href='/css/inframundo.css'/>"+
+                                            "<script src='/js/api.js'><\/script>";
+            const ifvideo=iFrame.document.getElementsByTagName("video");
+            if(ifvideo.length==1){ifvideo[0].pause();}
+        } catch (error) {
+            alert(error);
+        }
+        //console.clear();
+        //View("DP_File"+i);
+    }
+    function Selector_Checkbox(ch){
+        const checkboxes=$$("input[name='selected_dirs']");
+        if(ch){
+            for(let i=0;i<checkboxes.length;i++){
+                checkboxes[i].checked=true;
+            }
+        }else{
+            for(let i=0;i<checkboxes.length;i++){
+                checkboxes[i].checked=false;
+            }
+        }
+    }
+    //#################################################################################################################################
+    //A CONTINUACIÓN VARIABLE DE RUTA DONDE SE VAN A SUBIR LOS ARCHIVOS
+    let ruta_destino_file="";
+    let file_array;
+    let progressbar_archivosSubidos;
+    let progressbar_archivosTotales;
+    async function UPLoad_file(for_1){
+        const formulario = new FormData();
+        formulario.append("afile",$("#Input_Dir_Files").files[for_1]);
+        formulario.append("ruta",ruta_destino_file);//######################################AJUSTAR A PROTECCIÓN DE CODIGO
+        try{
+            const responseSend = await fetch("/upload_file",{method:"POST",body:formulario});
+            if(!responseSend.ok){
+                if(responseSend.status===401){
+                    location.replace("/login");
+                    return;
+                }
+                console.error("fallo de desconexión al subir archivo #"+for_1+"  :", responseSend.status);
+                return;
+            }
+            const responseText= await responseSend.text();
+            console.log(responseText+" #"+for_1);
+            const name = file_array[for_1].webkitRelativePath || file_array[for_1].name;
+            $("Item_archivo_"+for_1).innerHTML="<base class=\"GTA3s1 fa-sharp fa-solid fa-floppy-disk\"/><div class=\"GTA3s2\">"+name+"</div><base class=\"GTA3s3 fa-solid fa-cloud-check\"/>";
+            //ACTUALIZAMOS BARRA DE PROGRESO 
+            progressbar_archivosSubidos++;
+            const progressbar_porcentaje=progressbar_archivosSubidos*100/progressbar_archivosTotales;
+            $("#Progressbar").style="width:"+progressbar_porcentaje+"%;"+(progressbar_porcentaje==100 ? "background:#2FE12F;" : "");
+            //ACTUALIZAMOS LISTA DE ARCHIVOS
+            Call_List();
+        }catch(error){
+            console.error("Error en la solicitud:",error);
+        }
+    }
+    function print_list_upload_files(){///////////////////////////////////CAMBIAR NOMBRE A FUNCIÓN
+        ruta_destino_file="/"+list_files.ruta;//asignar ruta a donde se quieren subir los archivos##CAPTURA LA RUTA DESDE DONDE SE SUBEN LOS ARCHIVOS
+        file_array=$("#Input_Dir_Files").files;
+        progressbar_archivosSubidos=0;
+        progressbar_archivosTotales=file_array.length;
+        let code_html="";
+        for(let for_1=0,name="";for_1<file_array.length;for_1++){
+            if(file_array[for_1].webkitRelativePath!=""){name=file_array[for_1].webkitRelativePath;}else{name=file_array[for_1].name;}
+            code_html+="<div id=\"Item_archivo_"+for_1+"\" class=\"GTA3\" title=\""+name+"\"><base class=\"GTA3s1 fa-sharp fa-solid fa-file-import\"/><div class=\"GTA3s2\">"+name+"</div><base onclick=\"this.removeAttribute('onclick');UPLoad_file("+for_1+");\" class=\"GTA3s3 fa-solid fa-cloud-arrow-up\"/></div>";
+        }
+        $("#File_list_upload").innerHTML=code_html;
+        if(code_html==""){$View($$(".dinmc_btn_load_file"),"none");}
+        else{$View($$(".dinmc_btn_load_file"),"inline-block");}
+    }
+    function clear_list_upload_files(){
+        let Input_Dir_Files=$("#Input_Dir_Files");
+        let newfileInput=Input_Dir_Files.cloneNode(true);
+        newfileInput.value=null;
+        Input_Dir_Files.parentNode.replaceChild(newfileInput,Input_Dir_Files);
+        $("#Progressbar").style="";
+        progressbar_archivosSubidos=0;
+        progressbar_archivosTotales=0;
+        print_list_upload_files();
+    }
+    function UPLoad_List_files(){
+        for(let for_1=0;for_1<file_array.length;for_1++){
+            UPLoad_file(for_1);
+        }
+    }
+    async function Del_dirs(){
+        const checkboxes=$$("input[name='selected_dirs']:checked");
+        const chboxeslen=checkboxes.length;
+        if(chboxeslen>0 && confirm("Desea eliminar ("+chboxeslen+") elemento/s")){
+            const formulario = new FormData();
+            formulario.append("ruta",list_files.ruta);
+            let instruct_query="del";//Almacena la lista de nombres de los archivos y carpetas seleccionad@s
+            for(let i=0;i<checkboxes.length;i++){
+                instruct_query+=">"+list_files.dirs[checkboxes[i].value].Name;
+            }
+            formulario.append("instruct",instruct_query);
+            try{
+                const responseSend = await fetch("/inst",{method:"POST",body:formulario});
+                if(!responseSend.ok){
+                    if(responseSend.status===401){
+                        location.replace("/login");
+                        return;
+                    }
+                    console.error("ERROR DE CONEXIÓN",responseSend.status);
+                }
+                const responseInfo= await responseSend.json();
+                let txtRInfo="";
+                responseInfo.forEach((rInfo) => {txtRInfo+=rInfo.msg+"\n";});
+                alert(txtRInfo);
+                Call_List();
+            }catch(error){
+                console.error("Error en la solicitud:",error);
+            }
+        }
+    }
+    const ESTADO={
+        LIBRE:"LIBRE",
+        COPIADO:"COPIADO",
+        CORTADO:"CORTADO"
+    };
+    let ruta_origen_dirs,list_dirs_cut=[],estado_actual_pegado=ESTADO.LIBRE;
+    async function Prepare_dirs(action){
+        const checkboxes=$$("input[name='selected_dirs']:checked");
+        if(checkboxes.length>0){
+            ruta_origen_dirs=list_files.ruta;
+            list_dirs_cut=[];
+            estado_actual_pegado=action;
+            for(let i=0;i<checkboxes.length;i++){
+                list_dirs_cut[i]=list_files.dirs[checkboxes[i].value].Name;
+            }
+            Selector_Checkbox(false);
+        }else{
+            list_dirs_cut=[];
+            estado_actual_pegado=ESTADO.LIBRE;
+            console.log("No hay elementos seleccionados");
+        }
+    }
+    async function Paste_dirs(){
+        if(estado_actual_pegado!==ESTADO.LIBRE){
+            const formulario = new FormData();
+            formulario.append("ruta",list_files.ruta);
+            //let instruct_query=(estado_actual_pegado === ESTADO.CORTADO) ? "cut>"+ruta_origen_dirs : "copy>"+ruta_origen_dirs; //SUSTITUIDO POR LA LINEA DE ABAJO
+            let instruct_query = `${estado_actual_pegado === ESTADO.CORTADO ? "cut" : "copy"}>${ruta_origen_dirs}`;
+            for(let i=0;i<list_dirs_cut.length;i++){
+                instruct_query+=">"+list_dirs_cut[i];
+            }
+            formulario.append("instruct",instruct_query);
+            try{
+                const responseSend = await fetch("/inst",{method:"POST",body:formulario});
+                if(!responseSend.ok){
+                    if(responseSend.status===401){
+                        location.replace("/login");
+                        return;
+                    }
+                    console.error("ERROR DE CONEXIÓN",responseSend.status);
+                }
+                const responseInfo= await responseSend.json();
+                let txtRInfo="";
+                responseInfo.forEach((rInfo) => {txtRInfo+=rInfo.msg+"\n";});
+                list_dirs_cut=[];
+                estado_actual_pegado=ESTADO.LIBRE;
+                alert(txtRInfo);
+                Call_List();
+            }catch(error){
+                console.error("Error en la solicitud:",error);
+            }
+        }else{
+            console.log("No hay nada que pegar");
+        }
+    }
+    async function New_folder(){
+        let name_folder=prompt("Nombre de la carpeta");
+        if(name_folder==null ||  name_folder=="" || name_folder==undefined){
+            //SIN NOMBRE O CANCELADO
+        }else{
+            const formulario = new FormData();
+            formulario.append("ruta",list_files.ruta);
+            formulario.append("instruct","new>folder>"+name_folder);
+            try{
+                const responseSend = await fetch("/inst",{method:"POST",body:formulario});
+                if(!responseSend.ok){
+                    if(responseSend.status===401){
+                        location.replace("/login");
+                        return;
+                    }
+                    console.error("ERROR DE CONEXIÓN",responseSend.status);
+                }
+                const responseInfo= await responseSend.json();
+                alert(responseInfo[0].msg);
+                Call_List();
+            }catch(error){
+                console.error("Error en la solicitud:",error);
+            }
+        }
+    }
+    async function New_file(){
+        let name_file=prompt("Nombre del archivo");
+        if(name_file==null ||  name_file=="" || name_file==undefined){
+            //SIN NOMBRE O CANCELADO
+        }else{
+            const formulario = new FormData();
+            formulario.append("ruta",list_files.ruta);
+            formulario.append("instruct","new>file>"+name_file);
+            try{
+                const responseSend = await fetch("/inst",{method:"POST",body:formulario});
+                if(!responseSend.ok){
+                    if(responseSend.status===401){
+                        location.replace("/login");
+                        return;
+                    }
+                    console.error("ERROR DE CONEXIÓN",responseSend.status);
+                }
+                const responseInfo= await responseSend.json();
+                alert(responseInfo[0].msg);
+                Call_List();
+            }catch(error){
+                console.error("Error en la solicitud:",error);
+            }
+        }
+    }
+    async function Download_files() {
+        const checkboxes=$$("input[name='selected_dirs']:checked");
+        if(checkboxes.length>0){
+            for(let i=0;i<checkboxes.length;i++){
+                if(list_files.dirs[checkboxes[i].value].IsDir){
+                    console.log("Por ahora no se pueden descargar carpetas");
+                }else{
+                    const filename=list_files.dirs[checkboxes[i].value].Name;
+                    const url='/serverfile?r='+encodeURIComponent(list_files.ruta+filename);
+                    const etiqueta_descarga = Object.assign(document.createElement("a"), { href: url, download: filename || "" });
+                    etiqueta_descarga.click();
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+            }
+        }else{
+            console.log("No hay elementos seleccionados");
+        }
+    }
+    async function Change_name_dir(){
+        const  new_name_dir=prompt("Nuevo nombre",list_files.dirs[dir_contextmenu].Name);
+        if(!new_name_dir){
+            console.log("Cambio de nombre cancelado o vació");
+            return;
+        }
+
+        const formulario = new FormData();
+        formulario.append("ruta",list_files.ruta);
+        formulario.append("instruct","rename>"+list_files.dirs[dir_contextmenu].Name+">"+new_name_dir);
+
+        try{
+            const responseSend = await fetch("/inst",{method:"POST",body:formulario});
+            if(!responseSend.ok){
+                if(responseSend.status===401){
+                    location.replace("/login");
+                    return;
+                }
+                console.error("ERROR DE CONEXIÓN",responseSend.status);
+                return;
+            }
+            const responseInfo= await responseSend.json();
+            alert(responseInfo[0].msg);
+            Call_List();
+        }catch(error){
+            console.error("Error en la solicitud:",error);
+        }
+    }
+    let dir_contextmenu;//VARIABLE QUE ALMACENA EL INDICE DE LA CARPETA O ARCHIVO QUE SE SELECCIONO CON CLICK DERECHO
+    function Dialog_contextmenu(event,i){
+        if(event!=null){
+            dir_contextmenu=i;
+            const dialog=$("#dialog_1");
+            dialog.style.top=event.clientY+"px";
+            dialog.style.left=event.clientX+"px";
+            dialog.show();
+        }else{
+            dir_contextmenu=null;
+            $("#dialog_1").close();
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="GTAnavega">
+        <div id="H_Ruta">
+            <strong ondblclick="location.replace('/files/');">files/</strong>
+        </div>
+    </div>
+    <div class="GTAsearch"><input type="search" placeholder="Buscar"/></div>
+    <div class="GTAconfig"><base class="fa-duotone fa-solid fa-gear" onclick="$('#dialog_2').show()"/></div>
+    <div class="GTAbtmenu">
+        <base class="fa-duotone fa-solid fa-house-chimney" ondblclick="location.replace('/');"/>
+        <base class="fa-sharp-duotone fa-solid fa-objects-column" onclick="($$('.GTAsidelf')[0].style.position ==='') ? ($$('.GTAsidelf')[0].style='position:absolute;top:50px;height:calc(100% - 50px);display:grid !important;') : ($$('.GTAsidelf')[0].style='');"/>
+    </div>
+    <div class="GTAtoolsf">
+        <label onclick="Del_dirs();"><base class="fa-duotone fa-solid fa-trash-xmark"/><span>Eliminar</span></label>
+        <label onclick="New_folder();"><base class="fa-sharp-duotone fa-solid fa-folder-plus"/><span>Carpeta</span></label>
+        <label onclick="New_file();"><base class="fa-sharp-duotone fa-solid fa-file-plus"/><span>Archivo</span></label>
+        <label onclick="Download_files();"><base class="fa-sharp-duotone fa-solid fa-download"/><span>Descargar</span></label>
+        <label onclick="Prepare_dirs(ESTADO.COPIADO);"><base class="fa-sharp-duotone fa-solid fa-copy"/><span>Copiar</span></label>
+        <label onclick="Prepare_dirs(ESTADO.CORTADO);"><base class="fa-sharp-duotone fa-solid fa-scissors"/><span>Cortar</span></label>
+        <label onclick="Paste_dirs();"><base class="fa-sharp-duotone fa-solid fa-paste"/><span>Pegar</span></label>
+    </div>
+    <div class="GTAsidelf GTA2">
+        <div class="GTA2tema1">Raiz</div>
+        <div id="A_R_Raiz" class="GTA2t1lis"></div>
+        <div class="GTA2tema2">CARGA
+            <base class="fa-sharp-duotone fa-solid fa-file-arrow-up" onclick="$By($$('#Input_Dir_Files'),'rem','webkitdirectory');$By($$('#Input_Dir_Files'),'rem','directory');$('#Input_Dir_Files').click();"/>
+            <base class="fa-sharp-duotone fa-solid fa-folder-arrow-up" onclick="$By($$('#Input_Dir_Files'),'set','webkitdirectory');$By($$('#Input_Dir_Files'),'set','directory');$('#Input_Dir_Files').click();"/>
+            <base class="dinmc_btn_load_file fa-duotone fa-solid fa-download fa-flip-both" onclick="UPLoad_List_files();" style="display:none;"/>
+            <base class="dinmc_btn_load_file fa-duotone fa-solid fa-eraser" style="display:none;" onclick="clear_list_upload_files();">
+        </div>
+        <div class="GTA2Prgbr"><div id="Progressbar"></div></div>
+        <!--INPUT CARGA DE ARCHIVOS--><input id="Input_Dir_Files" type="file" webkitdirectory directory multiple style="display:none;" onchange="print_list_upload_files();"/>
+        <div class="GTA2t2lis" id="File_list_upload"></div>
+    </div>
+    <div id="ACCESO_RUTA" class="GTAsidert">
+        <div class="GTA4">
+            <div class="GTA4s1"><input type="checkbox" onchange="Selector_Checkbox(this.checked);"/></div>
+            <div class="GTA4s3">Nombre</div>
+            <div class="GTA4s4">Tamaño</div>
+            <div class="GTA4s5">Ultima modificación</div>
+            <div class="GTA4s6">Permisos</div>
+        </div>
+        <div id="CONTENEDOR_READ_DIR" class="Contenedor"></div>
+    </div>
+    <dialog id="dialog_1" style="top:0;left:0;">
+        <base class="fa-duotone fa-thin fa-copy" onclick="Prepare_dirs(ESTADO.COPIADO);Dialog_contextmenu();"/>
+        <base class="fa-duotone fa-thin fa-scissors" onclick="Prepare_dirs(ESTADO.CORTADO);Dialog_contextmenu();"/>
+        <base class="fa-sharp fa-solid fa-xmark" onclick="Dialog_contextmenu();"/>
+        <div onclick="Change_name_dir();Dialog_contextmenu();"><base class="fa-duotone fa-thin fa-pen-field"/>Renombrar</div>
+        <div onclick="Download_files();Dialog_contextmenu();"><base class="fa-duotone fa-thin fa-download"/>Descargar</div>
+        <div onclick="Prepare_dirs(ESTADO.COPIADO);Dialog_contextmenu();"><base class="fa-duotone fa-thin fa-copy"/>Copiar</div>
+        <div onclick="Prepare_dirs(ESTADO.CORTADO);Dialog_contextmenu();"><base class="fa-duotone fa-thin fa-scissors"/>Cortar</div>
+        <div onclick="Del_dirs();Dialog_contextmenu();"><base class="fa-duotone fa-thin fa-eraser"/>Eliminar</div>
+    </dialog>
+    <dialog id="dialog_2" style="top:0;right:0;">
+        <div>hola</div>
+        <div>cerrar sesión</div>
+    </dialog>
+</body>

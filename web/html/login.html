@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1"/>
+    <title>Login</title>
+    <link rel="shortcut icon" href="/img/icon.png" type="image/png"/>
+    <!-- Start CSS Imports -->
+        <!-- Importar CSS de forma optimizada -->
+        <link rel="preload" href="/css/login.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/all.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-regular.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/duotone-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-regular.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-solid.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-duotone-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-light.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-regular.css" as="style" onload="this.rel='stylesheet'">
+        <link rel="preload" href="/css/fa/css/sharp-solid.css" as="style" onload="this.rel='stylesheet'"/>
+        <link rel="preload" href="/css/fa/css/sharp-thin.css" as="style" onload="this.rel='stylesheet'"/>
+        <!-- Fallback para navegadores antiguos que no soportan 'preload' -->
+        <noscript>
+            <link rel="preload" href="/css/style.css"/>
+            <link rel="preload" href="/css/fa/css/all.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-light.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-regular.css"/>
+            <link rel="preload" href="/css/fa/css/duotone-thin.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-light.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-regular.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-solid.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-duotone-thin.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-light.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-regular.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-solid.css"/>
+            <link rel="preload" href="/css/fa/css/sharp-thin.css"/>
+        </noscript>
+    <!-- End CSS Imports -->
+    <script src="/js/api.js"></script>
+    <script></script>
+</head>
+<body>
+    <header class="GTA1sidebar">
+        <h1>Iniciar sesión</h1>
+    </header>
+    <main class="GTA1formlogin">
+        <form class="GTA2" action="/trylogin" method="POST">
+            <label class="GTA2_00" for="username">Usuario:</label>
+            <input class="GTA2_01" type="text" name="username" id="username" required/>
+            <label class="GTA2_10" for="password">Contraseña:</label>
+            <input class="GTA2_11" type="password" name="password" id="password" required/>
+            <input class="GTA2_20" type="submit" value="Iniciar Sesión"/>
+        </form>
+    </main>
+    <footer class="GTA1footer"></footer>
+</body>
+</html>

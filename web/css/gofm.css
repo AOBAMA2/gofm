@@ -1,0 +1,158 @@
+*, *::before, *::after{box-sizing:border-box;}
+*{margin:0;padding:0;border:none;border-collapse:collapse;outline:none;}
+html{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+body,html{background:#546E7A;color:#FFF;margin:0px;padding:0px;height:100%;max-height:100%;min-width:250px;width:100%;font-family:Arial;}
+
+body
+{
+    overflow-x:hidden;
+    overflow-y:hidden;
+    display:grid;
+    grid-template-areas:
+        "GTAbtmenu GTAnavega GTAsearch GTAconfig"
+        "GTAsidelf GTAtoolsf GTAtoolsf GTAtoolsf"
+        "GTAsidelf GTAsidert GTAsidert GTAsidert";
+    grid-template-columns:225px 1fr 1fr 50px; /* 200px para el sidebar y el resto para main */
+    grid-template-rows:50px 50px 1fr; /* 100px para el header, auto para el contenido, 50px para el footer */
+    gap:0; /* Espacio entre elementos */
+}
+@media (max-width: 650px) {
+    body
+    {
+        overflow-x:hidden;
+        overflow-y:hidden;
+        display:grid;
+        grid-template-areas:
+            "GTAbtmenu ... GTAconfig"
+            "GTAnavega GTAnavega GTAnavega"
+            "GTAsearch GTAsearch GTAsearch"
+            "GTAtoolsf GTAtoolsf GTAtoolsf"
+            "GTAsidert GTAsidert GTAsidert";
+        grid-template-columns:100px 1fr; /* 200px para el sidebar y el resto para main */
+        grid-template-rows:50px 50px 50px 50px 1fr; /* 100px para el header, auto para el contenido, 50px para el footer */
+        gap:0; /* Espacio entre elementos */
+    }
+    @media (max-width: 325px) {
+        body{grid-template-rows:50px 50px 100px 1fr;}
+    }
+        .GTAsidelf{display: none !important;}
+}
+
+.fa-file{color:#FFF}
+.fa-folder{color:#F5D365;}
+.fa-cloud-upload{color:#2FE12F;}
+.fa-clouds{color:#3498DB;}
+.fa-cloud-arrow-up{color: #dbdbdb;}
+.fa-cloud-check{color: #2FE12F;}
+.fa-file-import{color:#FFF;}
+.fa-floppy-disk{color: #005a96;}
+    .GTAnavega{grid-area:GTAnavega;align-content:center;}
+        #H_Ruta{font-size:22px;margin:0 0 0 5px;}
+            #H_Ruta strong{display:inline-block;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#00000082;padding:5px;margin-right:2px;border-radius:5px;}
+                #H_Ruta strong:hover{color:#00ffe5;cursor:pointer;}
+    .GTAsearch{grid-area:GTAsearch;text-align:center;align-content:center;}
+        .GTAsearch input[type="search"]{font-size: 22px;padding: 7px 15px;border: 1px solid black;border-radius: 25px; width: calc(100% - 30px);}
+        .GTAsearch input[type="checkbox"]{width:20px;height:20px;}
+    .GTAbtmenu{grid-area:GTAbtmenu;align-content:center;}
+        .GTAbtmenu base{font-size:32px;height:36px;width:36px;cursor:pointer;text-align:center;align-content:center;}
+        .GTAbtmenu base:first-of-type{float:left;}
+        .GTAbtmenu base:nth-of-type(2){float:right;}
+            .GTAbtmenu base:hover{color:#00ffe5;}
+    .GTAconfig{grid-area:GTAconfig;align-content:center;text-align:center;}
+        .GTAconfig>base{font-size:32px;height:36px;width:36px;cursor:pointer;text-align:center;align-content:center;}
+            .GTAconfig>base:hover{color:#00ffe5;}
+    .GTAtoolsf{grid-area:GTAtoolsf;align-content:center;}
+        .GTAtoolsf>label{font-size:22px;padding:5px;line-height:42px;background:#00000061;border-radius:5px;text-align:center;cursor:pointer;}
+            .GTAtoolsf>label>base{width:32px;padding:5px;border-radius:16px;max-width:100px;text-align:center;}
+                .GTAtoolsf>label:hover{color:#00ffe5;background:#000;}
+                .GTAtoolsf>label:hover>base{text-shadow:0 0 2px #fff, 0 0 10px #00ff64, 0 0 20px #e9ffde;}
+            @media (max-width: 1080px) {
+                .GTAtoolsf>label>span{display:none;}
+            }
+    .GTAsidelf{grid-area:GTAsidelf;background:#263238;}
+        .GTA2
+        {
+            overflow-x:hidden;
+            overflow-y:hidden;
+            display:grid;
+            grid-template-areas:
+                "GTA2tema1"
+                "GTA2t1lis"
+                "GTA2tema2"
+                "GTA2Prgbr"
+                "GTA2t2lis";
+            grid-template-columns:1fr;
+            grid-template-rows:35px 1fr 35px 2px 1fr;
+            gap:1px;
+        }
+            .GTA2tema1{grid-area:GTA2tema1;align-content:center;font-size:21px;background:#00000091;}
+            .GTA2t1lis{grid-area:GTA2t1lis;overflow-y: auto;}
+            .GTA3
+            {
+                overflow-x:hidden;
+                overflow-y:hidden;
+                display:grid;
+                grid-template-areas:
+                    "GTA3s1 GTA3s2 GTA3s3";
+                grid-template-columns:25px 1fr 25px;
+                grid-template-rows:25px;
+                gap:1px;
+            }
+                .GTA3:hover{background:#0000007c;}
+                    .GTA3s1{grid-area:GTA3s1;align-content:center;text-align:center;}
+                    .GTA3s2{grid-area:GTA3s2;align-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+                    .GTA3s3{grid-area:GTA3s3;align-content:center;text-align:center;cursor:pointer;}
+                .GTA2tema2{grid-area:GTA2tema2;align-content:center;font-size:21px;background:#00000091;}
+                    .GTA2tema2 base{padding:5px;width:31px;text-align:center;background:#00000061;border-radius:16px;cursor:pointer;}
+                    .GTA2tema2 base:hover{background:#263238;color:#00ffe5;}
+                .GTA2Prgbr{background:#00000000;}
+                    #Progressbar{width:0px;height:2px;background:#00ffe5;}
+            .GTA2t2lis{grid-area:GTA2t2lis;overflow-y: auto;}
+    .GTAsidert{grid-area:GTAsidert;background:#37474F;height:100%;overflow-x:hidden;overflow-y:auto;}
+        .GTA4
+        {
+            overflow-x:hidden;
+            overflow-y:hidden;
+            display:grid;
+            grid-template-areas:
+                "GTA4s1 GTA4s2 GTA4s3 GTA4s4 GTA4s5 GTA4s6";
+            grid-template-columns:25px 25px 1fr 90px 145px 85px;
+            grid-template-rows:25px;
+            gap:1px;
+        }
+        @media (max-width: 450px){
+            .GTA4
+            {
+                overflow-x:hidden;
+                overflow-y:hidden;
+                display:grid;
+                grid-template-areas:
+                    "GTA4s1 GTA4s2 GTA4s3 GTA4s4";
+                grid-template-columns:25px 25px 1fr 90px;
+                grid-template-rows:25px;
+                gap:1px;
+            }
+            .GTA4s5,.GTA4s6{display: none !important;}
+        }
+            .GTA4:hover{background:#0000007c;}
+                .GTA4s1{grid-area:GTA4s1;align-content:center;text-align:center;}
+                .GTA4s2{grid-area:GTA4s2;align-content:center;text-align:center;}
+                .GTA4s3{grid-area:GTA4s3;align-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+                .GTA4s4{grid-area:GTA4s4;align-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:end;padding:0 3px 0 0;}
+                .GTA4s5{grid-area:GTA4s5;align-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+                .GTA4s6{grid-area:GTA4s6;align-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+dialog[open]{top:0;scale:1;transition:scale .3s ease-in-out;@starting-style{scale:0;}}
+dialog{transition:scale .3s ease, display .3s ease allow-discrete;scale:0;}/*ESTA LINEA ANIMA LA SALIDA DEL DIALOG*/
+dialog#dialog_1{width:200px;height:200px;padding-top:2px;background:#263238;color:#FFF;}
+    dialog>base{width:35px;height:35px;cursor:pointer;padding:2px;font-size:25px;text-align:center;align-content:center;}
+    dialog>base.fa-copy,dialog>base.fa-scissors{margin:2px 3px 2px 2px;background:#007354;border-radius:5px;}
+        dialog>base.fa-copy:hover,dialog>base.fa-scissors:hover{color:#00ffe5;background:#000;text-shadow:0 0 5px #fff, 0 0 10px #00ff64, 0 0 20px #e9ffde;}
+    dialog>base.fa-xmark{float:right;}
+    dialog>base.fa-xmark:hover{color:#FF0000;}
+    dialog>div{padding:2px;border-bottom:1px solid #ffffff3b;cursor:pointer;}
+        dialog>div:hover{background:#0000007c;color:#00ffe5;}
+            dialog>div:hover>base{color:#00ffe5;background:#000;text-shadow:0 0 5px #fff, 0 0 10px #00ff64, 0 0 20px #e9ffde;}
+            dialog>div>base{padding:0 2px;margin-right:4px;border-right:1px solid #808080;width:25px;height:25px;text-align:center;align-content:center;background:#007354;border-radius:5px;}
+dialog#dialog_2{width:200px;height:200px;padding-top:2px;background:#263238;color:#FFF;}
+/**/

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset='utf-8'/>
+    <meta charset='utf-8'/>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
+    <meta name='viewport' content='initial-scale=1, maximum-scale=1'/>
+    <title>{{.Titulo}}</title>
+    <link rel='shortcut icon' href='/img/ic.png' type='image/png'/>
+    <link rel='stylesheet' type='text/css' href='/css/style.css'/>
+    <script src="/js/api.js"></script>
+    <script>
+    function doom(i){
+        try {
+            var iFrame=(By("DP_File"+i).contentWindow || By("DP_File"+i).contentDocument);
+            //alert("entró");
+            iFrame.document.head.innerHTML="<meta charset='utf-8'/><meta http-equiv='X-UA-Compatible' content='IE=edge'/>"+
+                                            "<meta name='viewport' content='initial-scale=1, maximum-scale=1'/>"+
+                                            "<link rel='stylesheet' type='text/css' href='/css/inframundo.css'/>"+
+                                            "<script src='/js/api.js'><\/script>";
+            var ifvideo=iFrame.document.getElementsByTagName("video");
+            if(ifvideo.length==1){ifvideo[0].pause();}
+        } catch (error) {
+            alert(error);
+        }
+        //console.clear();
+        //View("DP_File"+i);
+    }
+    </script>
+</head>
+<body id="BODY">
+    <header>
+        <div class="H_Up"></div>
+        <div class="H_Down">
+            <div class="H_Ruta"><strong ondblclick="location.replace('/');">home/</strong>
+                {{range .Ruting}}<strong ondblclick="location.replace('/{{index . 0}}');">{{index . 1}}</strong>
+                {{end}}
+            </div>
+        </div>
+    </header>
+    <table id="CONTAINER">
+        <tr>
+            <td id="ACCESO_RAPIDO" class="max">
+                <div class="Item">ACCESOS RAPIDOS</div>
+                {{range $i, $v := .Acceso_R}}
+                    {{if .IsDir}}
+                        <div class="Item" ondblclick="location.replace('/files/{{.Name}}');"><div class="I_Icon" style="background-image:url('/img/carp.png');"></div><div class="I_Name_R">{{.Name}}</div></div>
+                    {{else}}
+                        <div class="Item" ondblclick="location.replace('/files/');"><div class="I_Icon" style="background-image:url('/img/file.png');"></div><div class="I_Name_R">{{.Name}}</div></div>
+                    {{end}}
+                {{end}}
+            </td>
+            <td id="ACCESO_RUTA">
+                <div class="Item">
+                    <div class="I_Name_T">Nombre</div>
+                    <div class="I_Size">Tamaño</div>
+                    <div class="I_ModTime">Ultima modificación</div>
+                    <div class="I_Mode">Permisos</div>
+                </div>
+                <div class="Contenedor">
+                    {{range $i, $v := .Fichers}}
+                        {{if .IsDir}}
+                            <div class="Item" ondblclick="location.replace('/{{.Location}}{{.Name}}');">
+                                <div class="I_Icon" style="background-image:url('/img/carp.png');"></div>
+                                <div class="I_Name">{{.Name}}</div>
+                                <div class="I_Size">{{.Size}}</div>
+                                <div class="I_ModTime">{{.ModTime}}</div>
+                                <div class="I_Mode">{{.Mode}}</div>
+                            </div>
+                        {{else}}
+                            <div class="Item" ondblclick="if(View('DP_File{{$i}}')){By('DP_File{{$i}}').addEventListener('load',function(){doom('{{$i}}');});By('DP_File{{$i}}').src='/{{.Location}}{{.Name}}';}">
+                                <div class="I_Icon" style="background-image:url('/img/file.png');"></div>
+                                <div class="I_Name">{{.Name}}</div>
+                                <div class="I_Size">{{.Size}}</div>
+                                <div class="I_ModTime">{{.ModTime}}</div>
+                                <div class="I_Mode">{{.Mode}}</div>
+                            </div>
+                            <div class="Window_File">
+                                <iframe id="DP_File{{$i}}" style="display:none;"></iframe>
+                            </div>
+                        {{end}}
+                    {{end}}
+                </div>
+                <!--<div></div>-->
+            </td>
+        </tr>
+    </table>
+</body>

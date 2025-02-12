@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+/* styles.css */
+html,body,.grid-container {
+    height:100%;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-areas: 
+        "header1 header1 header1 header1"
+        "header4 header2 header2 header3"
+        "sidebar1 sidebar1 main main"
+        "sidebar2 sidebar2 main main"
+        "... ... main main";
+    grid-template-columns:50px 150px 200px 1fr; /* 200px para el sidebar y el resto para main */
+    grid-template-rows: 50px 50px auto auto 1fr; /* 100px para el header, auto para el contenido, 50px para el footer */
+    gap: 1px; /* Espacio entre elementos */
+    padding: 0;
+}
+
+.header1 {
+    grid-area: header1;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.header2 {
+    grid-area: header2;
+    background-color: #c112d8;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.header3 {
+    grid-area: header3;
+    background-color: #1a281a;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.header4 {
+    grid-area: header4;
+    background-color: #1a281a;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.sidebar1 {
+    grid-area: sidebar1;
+    background-color: #2196F3;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar2 {
+    grid-area: sidebar2;
+    background-color: #21f33a;
+    color: white;
+    padding: 20px;
+}
+
+.main {
+    grid-area: main;
+    background-color: #FFC107;
+    color: black;
+    padding: 1px;
+}
+
+/*-ORDENAR ARCHIVOS-*/
+
+.grid-file-params {
+    display: grid;
+    grid-template-areas: 
+        "sec1 sec2 sec3 sec4 sec5";
+    grid-template-columns: 20px 1fr 90px 170px 90px;
+    grid-template-rows: 25px;
+    gap:0;
+    padding:0;
+    margin:0 0 2px;
+    background:gray;
+}
+.grid-file-params div{
+    padding:0 0 0 2px;
+    margin:0;
+    align-content:center;
+    cursor:pointer;
+}
+.onefile:hover{
+    background: #1a281a;
+}
+.sec1{
+    grid-area:sec1;
+}
+.sec2{
+    grid-area:sec2;
+}
+.sec3{
+    grid-area:sec3;
+}
+.sec4{
+    grid-area:sec4;
+}
+.sec5{
+    grid-area:sec5;
+}
+
+    </style>
+    <title>Ejemplo de Grid con Áreas</title>
+</head>
+<body>
+    <div class="grid-container">
+        <header class="header1">Header1</header>
+        <header class="header2">Header2</header>
+        <header class="header3">Header3</header>
+        <header class="header4">H</header>
+        <div class="sidebar1">Sidebar1</div>
+        <div class="sidebar2">Sidebar2</div>
+        <div class="main">
+            <div class="grid-file-params">
+                <div class="sec1"><input type="checkbox"/></div>
+                <div class="sec2">Nombre</div>
+                <div class="sec3">Tamaño</div>
+                <div class="sec4">Fecha</div>
+                <div class="sec5">Permisos</div>
+            </div>
+            <div class="grid-file-params onefile">
+                <div class="sec1"><input type="checkbox"/></div>
+                <div class="sec2">sdñasNombre</div>
+                <div class="sec3">6 MB</div>
+                <div class="sec4">20/10/2024 19:35:52</div>
+                <div class="sec5">Permisos</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
